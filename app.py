@@ -11,7 +11,7 @@ messages = collections.deque(maxlen=100)
 @app.route('/', methods = ['GET', 'POST'])
 def index():
     if flask.request.method == 'POST':
-        request_ip_address = flask.request.environ['REMOTE_ADDR']
+        request_ip_address = get_client_ip_address()
         insert_new_message({
             'text': flask.request.form['message'],
             'username': get_username(request_ip_address),
@@ -25,7 +25,6 @@ def message_data():
     return json.dumps(get_recent_messages())
 
 # Functions for changing state
-
 def insert_new_message(message):
     messages.append(message)
 
@@ -36,6 +35,12 @@ def get_recent_messages(num_messages=100):
     return messages_list
 
 # Utilities for making fun usernames
+
+def get_client_ip_address():
+    if flask.request.environ.get('HTTP_X_FORWARDED_FOR') is None:
+        return flask.request.environ['REMOTE_ADDR']
+    else:
+        return flask.request.environ['HTTP_X_FORWARDED_FOR']
 
 def get_username(request_ip_address):
     ip_hash = hash(request_ip_address)
