@@ -15,7 +15,7 @@ def index():
         insert_new_message({
             'text': flask.request.form['message'],
             'username': get_username(request_ip_address),
-            'timestamp': datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
+            'creation_time': datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
             'color': get_color(request_ip_address)
         })
     return flask.render_template('index.html', messages=get_recent_messages())

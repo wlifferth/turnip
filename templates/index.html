@@ -21,7 +21,7 @@ function renderMessage(message) {
   usernameElement.textContent = message.username;
   var timestampElement = document.createElement("small");
   timestampElement.className = "message-text text-muted";
-  timestampElement.textContent = message.timestamp;
+  timestampElement.textContent = message.creation_time;
   var usernameColumn = document.createElement("div");
   usernameColumn.className = "username col-3";
   usernameColumn.append(
