@@ -1,6 +1,7 @@
 import flask
 import collections
 import datetime
+import json
 
 app = flask.Flask(__name__)
 
@@ -11,20 +12,36 @@ messages = collections.deque(maxlen=100)
 def index():
     if flask.request.method == 'POST':
         request_ip_address = flask.request.environ['REMOTE_ADDR']
-        messages.append({
+        insert_new_message({
             'text': flask.request.form['message'],
             'username': get_username(request_ip_address),
             'timestamp': datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
             'color': get_color(request_ip_address)
         })
-    return flask.render_template('index.html', messages=reversed(messages))
+    return flask.render_template('index.html', messages=get_recent_messages())
 
+@app.route('/messages', methods = ['GET'])
+def message_data():
+    return json.dumps(get_recent_messages())
+
+# Functions for changing state
+
+def insert_new_message(message):
+    messages.append(message)
+
+def get_recent_messages(num_messages=100):
+    messages_list = list(reversed(messages))
+    if len(messages_list) > num_messages:
+        messages_list = messages_list[:num_messages]
+    return messages_list
+
+# Utilities for making fun usernames
 
 def get_username(request_ip_address):
     ip_hash = hash(request_ip_address)
     adjectives = [
         'chonky',
-        'smol'
+        'smol',
         'lit',
         'whack',
         'heppy',
@@ -41,7 +58,7 @@ def get_username(request_ip_address):
         'mayonaise'
     ]
     selected_adjective = adjectives[ip_hash % len(adjectives)]
-    selected_animal = animals[ip_hash // 100 % len(animals)]
+    selected_animal = animals[(ip_hash // 100) % len(animals)]
     return f'{selected_adjective} {selected_animal}'
 
 def get_color(request_ip_address):
@@ -53,4 +70,7 @@ def get_color(request_ip_address):
         '355C7D'
     ]
     ip_hash = hash(request_ip_address)
-    return colors[hash(request_ip_address) // 10000 % len(colors)]
+    return colors[(hash(request_ip_address) // 10000) % len(colors)]
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0')
