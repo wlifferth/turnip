@@ -5,7 +5,7 @@ import json
 
 app = flask.Flask(__name__, static_url_path='')
 
-# We'll store the most recent 10 messages
+# We'll store the most recent 100 messages
 messages = collections.deque(maxlen=100)
 
 @app.route('/', methods = ['GET', 'POST'])
@@ -27,8 +27,8 @@ def message_data():
 def insert_new_message(username, color, text):
     messages.append({
         'text': flask.request.form['message'],
-        'username': get_username(request_ip_address),
-        'color': get_color(request_ip_address),
+        'username': username,
+        'color': color,
         'creation_time': datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
     })
 
